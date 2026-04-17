@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Moodify</title>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+
+      background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.8)),
+                  url('background.gif');
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+
+      color: white;
+      height: 100vh;
+
+      display: flex;
+      justify-content: space-between; /* LEFT + RIGHT placement */
+      align-items: center;
+
+      padding: 0 100px; /* spacing from edges */
+    }
+
+    .card {
+      background: rgba(24, 24, 24, 0.9);
+      backdrop-filter: blur(10px);
+      padding: 25px;
+      border-radius: 15px;
+      width: 320px;
+      text-align: center;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.6);
+    }
+
+    .sidebar {
+      background: rgba(24, 24, 24, 0.9);
+      backdrop-filter: blur(10px);
+      padding: 20px;
+      border-radius: 15px;
+      width: 200px;
+      height: 350px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.6);
+    }
+
+    .mood {
+      padding: 8px;
+      border-radius: 8px;
+      margin: 5px 0;
+      background: #282828;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    .mood:hover {
+      background: #1db954;
+    }
+
+    .album-art {
+      width: 100%;
+      height: 200px;
+      border-radius: 10px;
+      background-size: cover;
+      background-position: center;
+      margin-bottom: 15px;
+      transition: 0.4s;
+    }
+
+    .glow {
+      box-shadow: 0 0 25px #1db954;
+    }
+
+    input {
+      width: 90%;
+      padding: 10px;
+      border-radius: 20px;
+      border: none;
+      margin-bottom: 15px;
+      outline: none;
+    }
+
+    button {
+      background: #1db954;
+      border: none;
+      padding: 10px 15px;
+      margin: 5px;
+      border-radius: 50%;
+      color: white;
+      cursor: pointer;
+    }
+
+    .bars {
+      display: flex;
+      justify-content: center;
+      margin: 10px 0;
+      gap: 3px;
+    }
+
+    .bar {
+      width: 4px;
+      height: 20px;
+      background: #1db954;
+      animation: bounce 1s infinite ease-in-out;
+    }
+
+    .bar:nth-child(2) { animation-delay: 0.2s; }
+    .bar:nth-child(3) { animation-delay: 0.4s; }
+    .bar:nth-child(4) { animation-delay: 0.6s; }
+    .bar:nth-child(5) { animation-delay: 0.8s; }
+
+    @keyframes bounce {
+      0%, 100% { height: 10px; }
+      50% { height: 30px; }
+    }
+
+    #status {
+      margin-top: 10px;
+      opacity: 0.8;
+    }
+
+    h1 {
+      margin-bottom: 5px;
+    }
+
+    .tagline {
+      font-size: 12px;
+      opacity: 0.6;
+      margin-bottom: 10px;
+    }
+  </style>
+</head>
+
+<body>
+
+<!-- LEFT: PLAYER -->
+<div class="card">
+  <h1>Moodify</h1>
+  <div class="tagline">Turn feelings into sound</div>
+
+  <div id="art" class="album-art" style="background-image: url('default.jpg');"></div>
+
+  <input id="textInput" type="text" placeholder="Type your mood">
+
+  <div>
+    <button onclick="playMusic()">▶</button>
+    <button onclick="pauseMusic()">⏸</button>
+    <button onclick="stopMusic()">⏹</button>
+  </div>
+
+  <div class="bars">
+    <div class="bar"></div>
+    <div class="bar"></div>
+    <div class="bar"></div>
+    <div class="bar"></div>
+    <div class="bar"></div>
+  </div>
+
+  <input type="range" min="0" max="1" step="0.1" onchange="setVolume(this.value)">
+
+  <p id="status">Nothing playing</p>
+</div>
+
+<!-- RIGHT: MOODS -->
+<div class="sidebar">
+  <h3>Moods</h3>
+
+  <div class="mood" onclick="quickPlay('happy')">Happy</div>
+  <div class="mood" onclick="quickPlay('sad')">Sad</div>
+  <div class="mood" onclick="quickPlay('calm')">Calm</div>
+  <div class="mood" onclick="quickPlay('suspense')">Suspense</div>
+  <div class="mood" onclick="quickPlay('angry')">Angry</div>
+  <div class="mood" onclick="quickPlay('romantic')">Romantic</div>
+</div>
+
+<audio id="happy" src="happy.mp3"></audio>
+<audio id="sad" src="sad.mp3"></audio>
+<audio id="calm" src="calm.mp3"></audio>
+<audio id="suspense" src="suspense.mp3"></audio>
+<audio id="angry" src="angry.mp3"></audio>
+<audio id="romantic" src="romantic.mp3"></audio>
+
+<script>
+
+let currentAudio = null;
+
+function playMusic() {
+  let text = document.getElementById("textInput").value.toLowerCase();
+  handleMood(text);
+}
+
+function quickPlay(mood) {
+  document.getElementById("textInput").value = mood;
+  handleMood(mood);
+}
+
+function handleMood(text) {
+  let art = document.getElementById("art");
+
+  if (currentAudio) {
+    currentAudio.pause();
+    currentAudio.currentTime = 0;
+  }
+
+  art.classList.remove("glow");
+
+  if (text.includes("happy")) {
+    currentAudio = document.getElementById("happy");
+    art.style.backgroundImage = "url('happy.jpg')";
+    updateStatus("Happy");
+  }
+  else if (text.includes("sad")) {
+    currentAudio = document.getElementById("sad");
+    art.style.backgroundImage = "url('sad.jpg')";
+    updateStatus("Sad");
+  }
+  else if (text.includes("calm")) {
+    currentAudio = document.getElementById("calm");
+    art.style.backgroundImage = "url('calm.jpg')";
+    updateStatus("Calm");
+  }
+  else if (text.includes("suspense")) {
+    currentAudio = document.getElementById("suspense");
+    art.style.backgroundImage = "url('suspense.jpg')";
+    updateStatus("Suspense");
+  }
+  else if (text.includes("angry")) {
+    currentAudio = document.getElementById("angry");
+    art.style.backgroundImage = "url('angry.jpg')";
+    updateStatus("Angry");
+  }
+  else if (text.includes("romantic") || text.includes("love")) {
+    currentAudio = document.getElementById("romantic");
+    art.style.backgroundImage = "url('romantic.jpg')";
+    updateStatus("Romantic");
+  }
+  else {
+    document.getElementById("status").innerText = "Mood not recognized";
+    return;
+  }
+
+  art.classList.add("glow");
+  currentAudio.play();
+}
+
+function updateStatus(mood) {
+  document.getElementById("status").innerText = "Now Playing: " + mood;
+}
+
+function pauseMusic() {
+  if (currentAudio) currentAudio.pause();
+}
+
+function stopMusic() {
+  if (currentAudio) {
+    currentAudio.pause();
+    currentAudio.currentTime = 0;
+    document.getElementById("status").innerText = "Stopped";
+    document.getElementById("art").classList.remove("glow");
+  }
+}
+
+function setVolume(value) {
+  if (currentAudio) currentAudio.volume = value;
+}
+
+</script>
+
+</body>
+</html>
